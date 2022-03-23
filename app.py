@@ -7,6 +7,7 @@ import pandas as pd
 # Read in the USA counties shape files
 from urllib.request import urlopen
 import json
+mycode  = "https://github.com/cohos-method/303-virginia-elections.git"
 with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
     counties = json.load(response)
 
