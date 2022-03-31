@@ -12,10 +12,12 @@ import json
 
 tabtitle = 'US County Data Exploration'
 
+# data sources
 sourceurl = 'https://www.kaggle.com/muonneutrino/us-census-demographic-data'
 githublink = 'https://github.com/cohos-method/303-virginia-elections.git'
 dataurl = 'https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json'
 
+# local data sources
 file_county_data = "resources/acs2017_county_data.csv"
 file_rural_urban_codes = "resources/ruralurbancodes2013.xls"
 
@@ -50,21 +52,21 @@ with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-c
 
 #### buildFig
 def buildFig(dfx, colselected, state, imin, imax):
-
-    fig = go.Figure(go.Choroplethmapbox(geojson=counties,
-                                    locations=dfx['CountyId'],
-                                    z=dfx[colselected],
-                                    colorscale='Electric',
-                                    text=dfx['County'],
-                                    zmin=imin,
-                                    zmax=imax,
-                                    marker_line_width=0))
+    clrscale = ['red', 'orange', 'yellow', 'black', 'purple', 'blue']
+    fig = go.Figure(go.Choroplethmapbox(geojson=counties
+                                    , locations=dfx['CountyId']
+                                    , z=dfx[colselected]
+                                    , colorscale= clrscale#'Electric'
+                                    , text=dfx['County']
+                                    , zmin=imin
+                                    , zmax=imax
+                                    , marker_line_width=0))
 
     fig.update_layout(mapbox_style="carto-positron"
                       , mapbox_zoom=3.5
                      #, mapbox_center = {"lat": 38.0293, "lon": -79.4428}
                       , mapbox_center = {"lat": 41.101652, "lon": -98.291915}
-                      , title_text = "US  County Map for " + colselected
+                      , title_text = "US  County Map of {} for {}".format(state, colselected)
                       , title_font_size = 20
                       , margin = {"r":0,"t":30,"l":0,"b":0}
                       , width  = 1100
@@ -111,7 +113,7 @@ def buildFigDF(df1, state, colselected):
 ##### build  the graph using the data
 def drawFig(df, state, colselected):
     dfx, imin, imax = buildFigDF(df, state, colselected)
-    fig = buildFig(dfx, colselected, state, 0, 1000000)
+    fig = buildFig(dfx, colselected, state, imin, imax)
     return fig
 ################################
 df = buildSuperData()
@@ -139,8 +141,20 @@ app.layout = html.Div(children=[
     , dcc.Dropdown(id='state-drop', options=state_options, value='California')
     , html.H6('Select Metrics')
     , dcc.Dropdown(id='measure-drop', options=measure_options, value='TotalPop')
-    , dcc.Graph(id='figure1',figure=fig1)
     , html.Br()
+    , html.Button(children='Plot'
+                    , id='submit-val'
+                    , n_clicks=0,
+                    style={
+                    'background-color': 'red',
+                    'color': 'white',
+                    'margin-left': '5px',
+                    'verticalAlign': 'center',
+                    'horizontalAlign': 'center'}
+                    )
+    , html.Br()
+    , html.Br()
+    , dcc.Graph(id='figure1',figure=fig1)
     # Footer
     , html.Br()
     , html.A('Code on Github', href=githublink)
@@ -150,10 +164,16 @@ app.layout = html.Div(children=[
 )
 
 ############ Callbacks
+#@app.callback(Output('figure1', 'figure')
+#              ,[Input('state-drop', 'value')
+#              , Input('measure-drop', 'value')])
+
 @app.callback(Output('figure1', 'figure')
-              ,[Input('state-drop', 'value')
-              , Input('measure-drop', 'value')])
-def display_results(selected_state_value, selected_measure_value):
+            , Input(component_id='submit-val', component_property='n_clicks')
+            ,[State('state-drop', 'value')
+            , State('measure-drop', 'value')]
+              )
+def display_results(n_clicks, selected_state_value, selected_measure_value):
     fig1 = drawFig(df, selected_state_value, selected_measure_value)
     return fig1
 
