@@ -135,11 +135,12 @@ app.title=tabtitle
 app.layout = html.Div(children=[
     html.H1('US County Data Exploration')
     # Dropdowns
-    #, html.H6('Select State')
+    , html.H6('Select State')
     , dcc.Dropdown(id='state-drop', options=state_options, value='California')
-    #, html.H6('Select Metrics')
+    , html.H6('Select Metrics')
     , dcc.Dropdown(id='measure-drop', options=measure_options, value='TotalPop')
     , dcc.Graph(id='figure1',figure=fig1)
+    , html.Br()
     # Footer
     , html.Br()
     , html.A('Code on Github', href=githublink)
@@ -150,7 +151,7 @@ app.layout = html.Div(children=[
 
 ############ Callbacks
 @app.callback(Output('figure1', 'figure')
-              ,[Input('stats-drop', 'value')
+              ,[Input('state-drop', 'value')
               , Input('measure-drop', 'value')])
 def display_results(selected_state_value, selected_measure_value):
     fig1 = drawFig(df, selected_state_value, selected_measure_value)
