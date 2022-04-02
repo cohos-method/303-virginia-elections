@@ -116,7 +116,8 @@ def drawFig(df, state, colselected):
     fig = buildFig(dfx, colselected, state, imin, imax)
     return fig
 ################################
-df = buildSuperData()
+#df = buildSuperData()
+df = pd.read_pickle('resources/cohos_county_geo_data.pkl')
 
 listOfStates = df['State_x'].unique().tolist()
 
